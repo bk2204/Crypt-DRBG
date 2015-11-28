@@ -51,7 +51,7 @@ sub run_tests {
 				insn => 'instantiate'
 			};
 		}
-		elsif (/^\s+(Key|V)\s+=\s+([0-9a-f]+)/) {
+		elsif (/^\s+(Key|V|C)\s+=\s+([0-9a-f]+)/) {
 			my $var = lc substr($1, 0, 1);
 			push @insns, {insn => 'check', k => $var, v => pack("H*", $2)};
 		}

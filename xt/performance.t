@@ -45,6 +45,10 @@ my @functions = (
 		name => 'urandom',
 	},
 	{
+		func => sub { return hash_drbg('f', $_[0], %base_params) },
+		name => 'uncached Hash',
+	},
+	{
 		func => sub { return hmac_drbg('a', $_[0], %base_params) },
 		name => 'uncached HMAC',
 	},
@@ -104,6 +108,13 @@ sub urandom {
 }
 
 sub hmac_drbg {
+	my ($cache_id, $bytes, %params) = @_;
+
+	my $drbg = $objs{$cache_id} ||= Crypt::DRBG::HMAC->new(%params);
+	return $drbg->generate($bytes);
+}
+
+sub hash_drbg {
 	my ($cache_id, $bytes, %params) = @_;
 
 	my $drbg = $objs{$cache_id} ||= Crypt::DRBG::HMAC->new(%params);

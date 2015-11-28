@@ -175,7 +175,8 @@ sub initialize {
 	my ($self, %params) = @_;
 
 	my $seed = $self->_get_seed('seed', $self->{seedlen}, \%params);
-	my $nonce = $self->_get_seed('nonce', $self->{seedlen} / 2, \%params);
+	my $nonce = $self->_get_seed('nonce', int(($self->{seedlen} / 2) + 1),
+		\%params);
 	my $personal = $self->_get_personalization(\%params);
 
 	$self->_seed("$seed$nonce$personal");

@@ -16,6 +16,8 @@ WriteMakefile(
     },
     BUILD_REQUIRES => {
         'Test::More' => 0,
+        'Digest::SHA' => 0,
+        'Math::BigInt' => 0,
     },
     PREREQ_PM => {
         #'ABC'              => 1.6,

@@ -16,10 +16,10 @@ WriteMakefile(
     },
     BUILD_REQUIRES => {
         'Test::More' => 0,
-        'Digest::SHA' => 0,
-        'Math::BigInt' => 0,
     },
     PREREQ_PM => {
+        'Digest::SHA' => 0,
+        'Math::BigInt' => 0,
         #'ABC'              => 1.6,
         #'Foo::Bar::Module' => 5.0401,
     },

@@ -10,11 +10,6 @@ use IO::File ();
 
 Crypt::DRBG - Base class for fast, cryptographically-secure PRNGs
 
-=cut
-
-our $VERSION = '0.000001';
-
-
 =head1 SYNOPSIS
 
     use Crypt::DRBG::HMAC;

@@ -12,11 +12,6 @@ use Digest::SHA ();
 
 Crypt::DRBG::HMAC - Fast, cryptographically secure PRNG
 
-=cut
-
-our $VERSION = $Crypt::DRBG::VERSION;
-
-
 =head1 SYNOPSIS
 
     use Crypt::DRBG::HMAC;

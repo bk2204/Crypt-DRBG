@@ -78,18 +78,21 @@ my @functions = (
 
 foreach my $test (@tests) {
 	subtest $test->{desc} => sub {
-		plan tests => scalar @functions;
+		plan tests => 2 * scalar @functions;
 		foreach my $routine (@functions) {
 			my $timeout = $test->{timeout};
 			my $func = $routine->{func};
 			my $t0 = [Time::HiRes::gettimeofday];
-			foreach (1..100) {
+			my $bytes = '';
+			my $iters = 100;
+			foreach (1..$iters) {
 				foreach (1..$test->{repeat}) {
-					$func->($test->{count});
+					$bytes .= $func->($test->{count});
 				}
 			}
 			my $t1 = [Time::HiRes::gettimeofday];
 			my $secs = Time::HiRes::tv_interval($t0, $t1);
+			is(length($bytes), $test->{count} * $test->{repeat} * $iters, 'Got the correct number of bytes');
 			cmp_ok($secs, '<', $timeout,
 				"$routine->{name} completed in less than $timeout seconds");
 			diag "$routine->{name} took $secs seconds";

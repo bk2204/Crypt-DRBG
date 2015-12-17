@@ -140,6 +140,22 @@ done_testing();
 
 sub test_instantiation {
 	my ($params, $desc) = @_;
+	test_hmac_instantiation($params, $desc);
+	test_hash_instantiation($params, $desc);
+	return;
+}
+
+sub test_hash_instantiation {
+	my ($params, $desc) = @_;
+	my $expected = 'c7dfc3a61d94f45d0570';
+	my $obj = Crypt::DRBG::Hash->new(%$params);
+	my $hex = unpack 'H*', $obj->generate(10);
+	is($hex, $expected, "Generates expected value for $desc");
+	return;
+}
+
+sub test_hmac_instantiation {
+	my ($params, $desc) = @_;
 	my $expected = '10a912824b76baaec94b';
 	my $obj = Crypt::DRBG::HMAC->new(%$params);
 	my $hex = unpack 'H*', $obj->generate(10);

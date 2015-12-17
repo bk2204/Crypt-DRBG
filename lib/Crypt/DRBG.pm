@@ -165,6 +165,7 @@ sub _check_reseed {
 	if ($reseed) {
 		die "No seed source" if !$self->{seedfunc};
 		$self->_reseed($self->{seedfunc}->($self->{seedlen}));
+		$self->{pid} = $$ if $self->{fork_safe};
 	}
 
 	return 1;
@@ -185,7 +186,9 @@ sub initialize {
 		$self->{cache_size} = $params{cache};
 	}
 
-	$self->{pid} = $$ if $params{fork_safe};
+	$self->{fork_safe} = $params{fork_safe};
+	$self->{fork_safe} = 1 if $params{auto} && !defined $params{fork_safe};
+	$self->{pid} = $$ if $self->{fork_safe};
 
 	return 1;
 }

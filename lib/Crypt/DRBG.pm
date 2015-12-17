@@ -98,7 +98,7 @@ sub _rand_bytes {
 }
 
 sub _get_seed {
-	my ($self, $name, $len, $params) = @_;
+	my ($self, $name, $len, $params, $optional) = @_;
 	my $autoname = "auto$name";
 
 	my $seed;
@@ -109,7 +109,10 @@ sub _get_seed {
 		my $seedfunc;
 		$seedfunc = $params->{$name} if ref $params->{$name} eq 'CODE';
 		$seedfunc = \&_rand_bytes if $params->{$autoname} || $params->{auto};
-		die "No seed source" unless $seedfunc;
+		unless ($seedfunc) {
+			die "No seed source" unless $optional;
+			return '';
+		}
 		$self->{"${name}func"} = $seedfunc;
 		$seed = $seedfunc->($len);
 	}
@@ -144,7 +147,8 @@ sub _get_personalization {
 				);
 			};
 		}
-		die "No seed source" unless $seedfunc;
+		# Personalization strings are recommended, but optional.
+		return '' unless $seedfunc;
 		$seed = $seedfunc->();
 	}
 
@@ -171,7 +175,7 @@ sub initialize {
 
 	my $seed = $self->_get_seed('seed', $self->{seedlen}, \%params);
 	my $nonce = $self->_get_seed('nonce', int(($self->{seedlen} / 2) + 1),
-		\%params);
+		\%params, 1);
 	my $personal = $self->_get_personalization(\%params);
 
 	$self->_seed("$seed$nonce$personal");

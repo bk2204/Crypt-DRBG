@@ -234,16 +234,21 @@ Defaults to 1 (obviously).
 Note that just as with Perl's rand, there may be a slight bias with this
 function.  Use randitems if that matters to you.
 
+Returns an array if $num is specified and a single item if it is not.
+
 =cut
 
 sub rand {
 	my ($self, $n, $num) = @_;
 
+	my $single = !defined $num;
+
 	$n = 1 unless defined $n;
 	$num = 1 unless defined $num;
 
 	my $bytes = $self->generate($num * 4);
-	return map { $_ / 2.0 / (2 ** 31) * $n } unpack("N[$num]", $bytes);
+	my @data = map { $_ / 2.0 / (2 ** 31) * $n } unpack("N[$num]", $bytes);
+	return $single ? $data[0] : @data;
 }
 
 =head2 $drbg->randitems($n, $items)

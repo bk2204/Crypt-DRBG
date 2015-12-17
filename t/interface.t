@@ -136,6 +136,37 @@ subtest 'randitems' => sub {
 	}
 };
 
+subtest 'rand' => sub {
+	my $obj = Crypt::DRBG::HMAC->new(seed => 'my very secret seed');
+
+	my $max = 5;
+	my $value = $obj->rand($max);
+	is($value, 0x2bc5b19e / 2.0 / (2 ** 31) * $max, 'Value is as expected');
+
+	my @tests = (
+		{
+			count => 100,
+			arg => 5,
+			desc => 'digits'
+		},
+	);
+	foreach my $test (@tests) {
+		subtest "generate $test->{desc}" => sub {
+			my @entries = $obj->rand($test->{arg}, $test->{count});
+			is(scalar @entries, $test->{count}, 'correct number of items');
+			my $buckets = {};
+			$buckets->{int($_)}++ for @entries;
+			my $total = 0;
+			foreach my $item (0..($test->{arg}-1)) {
+				$total += $buckets->{$item};
+				cmp_ok($buckets->{$item}, '>', 0, "At least one of $item");
+			}
+			is($total, scalar @entries, 'only expected numbers exist');
+			is((grep { $_ >= $test->{arg} } @entries), 0, 'right range');
+		}
+	}
+};
+
 done_testing();
 
 sub test_instantiation {

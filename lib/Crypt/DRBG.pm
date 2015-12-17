@@ -275,12 +275,12 @@ sub randitems {
 		$mask = $len - 1;
 	}
 
-	my $pack = "$params->{pack}[$n]";
+	my $pack = "$params->{pack}\[$n\]";
 	while (@results < $n) {
 		my $bytes = $self->generate($params->{bytes} * $n);
 
 		my @data = map { $_ & $mask } grep { $_ < $max } unpack($pack, $bytes);
-		push @results, @data;
+		push @results, map { $items->[$_ % $len] } @data;
 	}
 
 	return splice(@results, 0, $n);

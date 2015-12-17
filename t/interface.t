@@ -101,6 +101,41 @@ subtest 'Fork safety' => sub {
 	}
 };
 
+subtest 'randitems' => sub {
+	my $obj = Crypt::DRBG::HMAC->new(seed => 'my very secret seed');
+	my @tests = (
+		{
+			count => 100,
+			range => [0..9],
+			desc => 'digits'
+		},
+		{
+			count => 300,
+			range => ['A'..'Z', 'a'..'z', '_'],
+			desc =>'valid identifiers'
+		},
+		{
+			count => 500,
+			range => ['0'..'9', 'A'..'Z', 'a'..'z', '+', '/'],
+			desc =>'base64'
+		},
+	);
+	foreach my $test (@tests) {
+		subtest "generate $test->{desc}" => sub {
+			my @entries = $obj->randitems($test->{count}, $test->{range});
+			is(scalar @entries, $test->{count}, 'correct number of items');
+			my $buckets = {};
+			$buckets->{$_}++ for @entries;
+			my $total = 0;
+			foreach my $item (@{$test->{range}}) {
+				$total += $buckets->{$item};
+				cmp_ok($buckets->{$item}, '>', 0, "At least one of $item");
+			}
+			is($total, scalar @entries, 'only expected characters exist');
+		}
+	}
+};
+
 done_testing();
 
 sub test_instantiation {

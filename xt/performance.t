@@ -45,32 +45,32 @@ my @functions = (
 		name => 'urandom',
 	},
 	{
-		func => sub { return hash_drbg('f', $_[0], %base_params) },
+		func => sub { return hash_drbg(@_, %base_params) },
 		name => 'uncached Hash',
 	},
 	{
-		func => sub { return hmac_drbg('a', $_[0], %base_params) },
+		func => sub { return hmac_drbg(@_, %base_params) },
 		name => 'uncached HMAC',
 	},
 	{
-		func => sub { return hmac_drbg('b', $_[0], auto => 1) },
+		func => sub { return hmac_drbg(@_, auto => 1) },
 		name => 'uncached HMAC (auto)',
 	},
 	{
 		func => sub {
-			return hmac_drbg('c', $_[0], %base_params, cache => 1024)
+			return hmac_drbg(@_, %base_params, cache => 1024)
 		},
 		name => 'cached HMAC',
 	},
 	{
 		func => sub {
-			return hmac_drbg('d', $_[0], auto => 1, cache => 1024)
+			return hmac_drbg(@_, auto => 1, cache => 1024)
 		},
 		name => 'cached HMAC (auto)',
 	},
 	{
 		func => sub {
-			return hmac_drbg('e', $_[0], %base_params, cache => 65536)
+			return hmac_drbg(@_, %base_params, cache => 65536)
 		},
 		name => 'cached HMAC (large)',
 	},
@@ -87,7 +87,7 @@ foreach my $test (@tests) {
 			my $iters = 100;
 			foreach (1..$iters) {
 				foreach (1..$test->{repeat}) {
-					$bytes .= $func->($test->{count});
+					$bytes .= $func->($test->{count}, $routine->{name});
 				}
 			}
 			my $t1 = [Time::HiRes::gettimeofday];
@@ -111,14 +111,14 @@ sub urandom {
 }
 
 sub hmac_drbg {
-	my ($cache_id, $bytes, %params) = @_;
+	my ($bytes, $cache_id, %params) = @_;
 
 	my $drbg = $objs{$cache_id} ||= Crypt::DRBG::HMAC->new(%params);
 	return $drbg->generate($bytes);
 }
 
 sub hash_drbg {
-	my ($cache_id, $bytes, %params) = @_;
+	my ($bytes, $cache_id, %params) = @_;
 
 	my $drbg = $objs{$cache_id} ||= Crypt::DRBG::HMAC->new(%params);
 	return $drbg->generate($bytes);

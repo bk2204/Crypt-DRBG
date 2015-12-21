@@ -143,6 +143,10 @@ subtest 'rand' => sub {
 	my $value = $obj->rand($max);
 	is($value, 0x2bc5b19e / 2.0 / (2 ** 31) * $max, 'Value is as expected');
 
+	$value = $obj->rand;
+	cmp_ok($value, '<', 1, 'raw rand value is less than 1');
+	cmp_ok($value, '>=', 0, 'raw rand value is non-negative');
+
 	my @tests = (
 		{
 			count => 100,

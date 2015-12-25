@@ -80,6 +80,7 @@ sub new {
 	$self->{security_strength} = $self->{outlen} / 2;
 	$self->{min_length} = $self->{security_strength};
 	$self->{max_length} = 4294967295; # (2^32)-1
+	$self->{s_mask} = (Math::BigInt->new->bone << ($self->{seedlen} * 8)) - 1;
 
 	$self->initialize(%params);
 
@@ -119,12 +120,11 @@ use Math::BigInt try => 'GMP';
 sub _add {
 	my ($self, @args) = @_;
 	my @items = map { Math::BigInt->new("0x" . unpack("H*", $_)) } @args;
-	my $mod = Math::BigInt->new->bone << ($self->{seedlen} * 8);
 	my $final = Math::BigInt->new->bzero;
 	foreach my $val (@items) {
 		$final += $val;
 	}
-	$final %= $mod;
+	$final &= $self->{s_mask};
 	my $data = substr($final->as_hex, 2);
 	$data = "0$data" if length($data) & 1;
 	$data = pack("H*", $data);

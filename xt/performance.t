@@ -8,6 +8,7 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 
 use Crypt::DRBG::HMAC;
+use Crypt::DRBG::Hash;
 use IO::File;
 use Time::HiRes;
 
@@ -120,6 +121,6 @@ sub hmac_drbg {
 sub hash_drbg {
 	my ($bytes, $cache_id, %params) = @_;
 
-	my $drbg = $objs{$cache_id} ||= Crypt::DRBG::HMAC->new(%params);
+	my $drbg = $objs{$cache_id} ||= Crypt::DRBG::Hash->new(%params);
 	return $drbg->generate($bytes);
 }

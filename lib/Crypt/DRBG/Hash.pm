@@ -80,11 +80,38 @@ sub new {
 	$self->{security_strength} = $self->{outlen} / 2;
 	$self->{min_length} = $self->{security_strength};
 	$self->{max_length} = 4294967295; # (2^32)-1
-	$self->{s_mask} = (Math::BigInt->new->bone << ($self->{seedlen} * 8)) - 1;
+
+	# If we have a 64-bit Perl, make things much faster.
+	my $is_64 = (4294967295 + 2) != 1;
+	if ($is_64) {
+		$self->{s_add} = \&_add_64;
+		$self->{s_add_int} = \&_add_int_64;
+	}
+	else {
+		require Math::BigInt;
+		Math::BigInt->import(try => 'GMP');
+
+		$self->{s_mask} =
+			(Math::BigInt->new->bone << ($self->{seedlen} * 8)) - 1;
+		$self->{s_add} = \&_add_32;
+		$self->{s_add_int} = \&_add_int_32;
+	}
 
 	$self->initialize(%params);
 
 	return $self;
+}
+
+sub _add {
+	my ($self, @args) = @_;
+	my $func = $self->{s_add};
+	return $self->$func(@args);
+}
+
+sub _add_int {
+	my ($self, @args) = @_;
+	my $func = $self->{s_add_int};
+	return $self->$func(@args);
 }
 
 sub _derive {
@@ -115,9 +142,7 @@ sub _reseed {
 	return $self->_seed("\x01$self->{state}{v}$seed");
 }
 
-use Math::BigInt try => 'GMP';
-
-sub _add {
+sub _add_32 {
 	my ($self, @args) = @_;
 	my @items = map { Math::BigInt->new("0x" . unpack("H*", $_)) } @args;
 	my $final = Math::BigInt->new->bzero;
@@ -131,10 +156,40 @@ sub _add {
 	return ("\x00" x ($self->{seedlen} - length($data))) . $data;
 }
 
-sub _add_int {
+sub _add_64 {
+	my ($self, @args) = @_;
+
+	my $nbytes = $self->{seedlen} + 1;
+	my $nu32s = $nbytes / 4;
+	my @vals = map {
+		[unpack('N*', ("\x00" x ($nbytes - length($_))) .  $_)]
+	} @args;
+
+	my @result = (0) x $nu32s;;
+	foreach my $i (reverse 0..($nu32s-1)) {
+		my $total = $result[$i];
+		foreach my $val (@vals) {
+			$total += $val->[$i];
+		}
+		if ($i && $total > 0xffffffff) {
+			$result[$i-1] += $total >> 32;
+		}
+		$result[$i] = $total & 0xffffffff;
+	}
+	return substr(pack("N*", @result), 1);
+}
+
+sub _add_int_32 {
 	my ($self, $x, $y) = @_;
 
-	return $self->_add($x, pack("N*", $y));
+	return $self->_add_32($x, pack("N*", $y));
+}
+
+sub _add_int_64 {
+	my ($self, $x, $y) = @_;
+	my $len = $self->{seedlen} - 4;
+
+	return $self->_add_64($x, ("\x00" x $len) . pack("N*", $y));
 }
 
 sub _hashgen {
@@ -163,15 +218,15 @@ sub _generate {
 
 	$self->_check_reseed($len);
 
-	my $func = $self->{s_func};
+	my ($func, $add, $addi) = @{$self}{qw/s_func s_add s_add_int/};
 	my ($c, $v) = @{$self->{state}}{qw/c v/};
 	if (defined $seed) {
 		my $w = $func->("\x02$v$seed");
-		$v = $self->_add($v, $w);
+		$v = $self->$add($v, $w);
 	}
 	my $data = $self->_hashgen($v, $len);
 	my $h = $func->("\x03$v");
-	$v = $self->_add_int($self->_add($v, $h, $c), $self->{reseed_counter});
+	$v = $self->$addi($self->$add($v, $h, $c), $self->{reseed_counter});
 	$self->{reseed_counter}++;
 	$self->{state}{v} =  $v;
 	return substr($data, 0, $len);

@@ -9,6 +9,7 @@ use lib "$FindBin::Bin/../lib";
 
 use Crypt::DRBG::Hash;
 use IO::Handle;
+use Math::BigInt try => 'GMP';
 use Test::More;
 
 my $obj = Crypt::DRBG::Hash->new(seed => '');

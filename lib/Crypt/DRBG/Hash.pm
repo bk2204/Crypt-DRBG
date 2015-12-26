@@ -159,6 +159,8 @@ sub _add_32 {
 sub _add_64 {
 	my ($self, @args) = @_;
 
+	use integer;
+
 	my $nbytes = $self->{seedlen} + 1;
 	my $nu32s = $nbytes / 4;
 	my @vals = map {

@@ -109,14 +109,15 @@ sub _update {
 	my $data = defined $seed ? $seed : '';
 
 	my $func = $self->{s_func};
-	my ($k, $v) = @{$self->{state}}{qw/k v/};
+	my $state = $self->{state};
+	my ($k, $v) = @{$state}{qw/k v/};
 	$k = $func->("$v\x00$data", $k);
 	$v = $func->($v, $k);
 	if (defined $seed) {
 		$k = $func->("$v\x01$data", $k);
 		$v = $func->($v, $k);
 	}
-	@{$self->{state}}{qw/k v/} = ($k, $v);
+	@{$state}{qw/k v/} = ($k, $v);
 	return 1;
 }
 
@@ -136,14 +137,15 @@ sub _generate {
 
 	my $count = ($len + ($self->{outlen} - 1)) / $self->{outlen};
 	my $data = '';
-	my ($k, $v) = @{$self->{state}}{qw/k v/};
+	my $state = $self->{state};
+	my ($k, $v) = @{$state}{qw/k v/};
 	my $func = $self->{s_func};
 	for (1..$count) {
 		$v = $func->($v, $k);
 		$data .= $v;
 	}
 	$self->{reseed_counter}++;
-	@{$self->{state}}{qw/k v/} = ($k, $v);
+	@{$state}{qw/k v/} = ($k, $v);
 	$self->_update($seed);
 	return substr($data, 0, $len);
 }

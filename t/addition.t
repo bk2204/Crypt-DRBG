@@ -19,7 +19,7 @@ my $all_zeros = "\x00" x $len;
 my $all_ones = "\xff" x $len;
 my $one = "\x00" x ($len-1) . "\x01";
 compare_add($all_ones, $one, "wraps around properly");
-compare_add_int($all_ones, 1, "int wraps around properly");
+compare_add($all_ones, pack('N*', 1), "int wraps around properly");
 
 # Fractional parts of natural logs of 2, 3, 4, … with dc -l and 50k.
 my @lns = qw/
@@ -37,7 +37,7 @@ foreach my $xh (@lns) {
 		my $y = hex_to_bin($yh);
 		compare_add($x, $y, "addition of $xh and $yh");
 	}
-	compare_add_int($x, $cnt++, "addition of $xh and an integer");
+	compare_add($x, pack('N*', $cnt++), "addition of $xh and an integer");
 }
 
 done_testing();
@@ -51,13 +51,6 @@ sub compare_add {
 	my ($x, $y, $msg) = @_;
 	my $z = add($x, $y);
 	my $res = $obj->_add($x, $y);
-	return compare($res, $z, $msg);
-}
-
-sub compare_add_int {
-	my ($x, $y, $msg) = @_;
-	my $z = add($x, pack('N*', $y));
-	my $res = $obj->_add_int($x, $y);
 	return compare($res, $z, $msg);
 }
 

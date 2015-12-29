@@ -85,7 +85,6 @@ sub new {
 	my $is_64 = (4294967295 + 2) != 1;
 	if ($is_64) {
 		$self->{s_add} = \&_add_64;
-		$self->{s_add_int} = \&_add_int_64;
 	}
 	else {
 		require Math::BigInt;
@@ -94,7 +93,6 @@ sub new {
 		$self->{s_mask} =
 			(Math::BigInt->new->bone << ($self->{seedlen} * 8)) - 1;
 		$self->{s_add} = \&_add_32;
-		$self->{s_add_int} = \&_add_int_32;
 	}
 
 	$self->initialize(%params);
@@ -105,12 +103,6 @@ sub new {
 sub _add {
 	my ($self, @args) = @_;
 	my $func = $self->{s_add};
-	return $self->$func(@args);
-}
-
-sub _add_int {
-	my ($self, @args) = @_;
-	my $func = $self->{s_add_int};
 	return $self->$func(@args);
 }
 
@@ -182,19 +174,6 @@ sub _add_64 {
 	return substr(reverse(pack("V*", @result)), 1);
 }
 
-sub _add_int_32 {
-	my ($self, $x, $y) = @_;
-
-	return $self->_add_32($x, pack("N*", $y));
-}
-
-sub _add_int_64 {
-	my ($self, $x, $y) = @_;
-	my $len = $self->{seedlen} - 4;
-
-	return $self->_add_64($x, ("\x00" x $len) . pack("N*", $y));
-}
-
 sub _hashgen {
 	my ($self, $v, $len) = @_;
 
@@ -203,7 +182,7 @@ sub _hashgen {
 	my $data = '';
 	for (1..$count) {
 		$data .= $func->($v);
-		$v = $self->_add_int($v, 1);
+		$v = $self->_add($v, "\x01");
 	}
 	return substr($data, 0, $len);
 }
@@ -221,7 +200,7 @@ sub _generate {
 
 	$self->_check_reseed($len);
 
-	my ($func, $add, $addi) = @{$self}{qw/s_func s_add s_add_int/};
+	my ($func, $add) = @{$self}{qw/s_func s_add/};
 	my ($c, $v) = @{$self->{state}}{qw/c v/};
 	if (defined $seed) {
 		my $w = $func->("\x02$v$seed");
@@ -229,7 +208,7 @@ sub _generate {
 	}
 	my $data = $self->_hashgen($v, $len);
 	my $h = $func->("\x03$v");
-	$v = $self->$addi($self->$add($v, $h, $c), $self->{reseed_counter});
+	$v = $self->$add($v, $h, $c, pack("N*", $self->{reseed_counter}));
 	$self->{reseed_counter}++;
 	$self->{state}{v} =  $v;
 	return substr($data, 0, $len);

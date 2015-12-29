@@ -176,7 +176,7 @@ sub _add_64 {
 		if ($i && $total > 0xffffffff) {
 			$result[$i-1] += $total >> 32;
 		}
-		$result[$i] = $total & 0xffffffff;
+		$result[$i] = $total;
 	}
 	return substr(pack("N*", @result), 1);
 }

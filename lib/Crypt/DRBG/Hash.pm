@@ -164,21 +164,21 @@ sub _add_64 {
 	my $nbytes = $self->{seedlen} + 1;
 	my $nu32s = $nbytes / 4;
 	my @vals = map {
-		[unpack('N*', ("\x00" x ($nbytes - length($_))) .  $_)]
+		[unpack('V*', reverse(("\x00" x ($nbytes - length($_))) .  $_))]
 	} @args;
 
 	my @result = (0) x $nu32s;;
-	foreach my $i (reverse 0..($nu32s-1)) {
+	foreach my $i (0..($nu32s-1)) {
 		my $total = $result[$i];
 		foreach my $val (@vals) {
 			$total += $val->[$i];
 		}
-		if ($i && $total > 0xffffffff) {
-			$result[$i-1] += $total >> 32;
+		if ($total > 0xffffffff) {
+			$result[$i+1] += $total >> 32;
 		}
 		$result[$i] = $total;
 	}
-	return substr(pack("N*", @result), 1);
+	return substr(reverse(pack("V*", @result)), 1);
 }
 
 sub _add_int_32 {

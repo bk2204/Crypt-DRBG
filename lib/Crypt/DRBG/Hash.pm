@@ -157,17 +157,18 @@ sub _add_32 {
 }
 
 sub _add_64 {
-	my ($self, @args) = @_;
+	my ($self, $x, @args) = @_;
 
 	use integer;
 
 	my $nbytes = $self->{seedlen} + 1;
 	my $nu32s = $nbytes / 4;
+	# Optimize based on the fact that the first argument is always full-length.
+	my @result = unpack('V*', reverse "\x00$x");
 	my @vals = map {
 		[unpack('V*', reverse(("\x00" x ($nbytes - length($_))) .  $_))]
 	} @args;
 
-	my @result = (0) x $nu32s;;
 	foreach my $i (0..($nu32s-1)) {
 		my $total = $result[$i];
 		foreach my $val (@vals) {

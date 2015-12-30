@@ -24,6 +24,16 @@ foreach my $class (@classes) {
 			$obj = $class->new(seed => 'my very secret seed');
 			isa_ok($obj, $class, 'manual seed object');
 			isa_ok($obj, 'Crypt::DRBG', 'manual seed object');
+
+			$obj = $class->new(
+				seed => 'my very secret seed',
+				autopersonalize => 1
+			);
+			isa_ok($obj, $class, 'manual seed object with autopersonalize');
+
+			$obj = eval { $class->new };
+			is($obj, undef, 'failed to instantiate without a seed');
+			like($@, qr/no seed/i, 'failed to instantiate without a seed');
 		};
 	};
 }

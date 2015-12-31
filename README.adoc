@@ -1,7 +1,16 @@
 Crypt-DRBG
 ==========
 
-INSTALLATION
+== Overview
+
+Crypt-DRBG is a set of fast, cryptographically-secure PRNGs.  It can be used
+either as a supplement to the system PRNG (e.g. /dev/random or /dev/urandom) or
+where reproducible results are needed.
+
+The algorithms implemented are the NIST HMAC_DRBG and Hash_DRBG.  Unit tests are
+included to ensure conformance with the specification.
+
+== Installation
 
 To install this module, run the following commands:
 
@@ -10,7 +19,7 @@ To install this module, run the following commands:
 	make test
 	make install
 
-LICENSE AND COPYRIGHT
+== License and Copyright
 
 Copyright (C) 2015 brian m. carlson
 

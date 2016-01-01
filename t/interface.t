@@ -181,6 +181,33 @@ subtest 'rand' => sub {
 	}
 };
 
+subtest 'Cache handling' => sub {
+	my $total_bytes = 1024 * 2.5;
+	my $seed = 'my very secret seed';
+	my $obj = Crypt::DRBG::HMAC->new(
+		seed => $seed,
+		cache => 1024
+	);
+	my $expected = $obj->generate($total_bytes);
+
+	$obj = Crypt::DRBG::HMAC->new(
+		seed => $seed,
+		cache => 1024
+	);
+
+	my $got = '';
+	my $left = $total_bytes;
+	foreach my $bytes (1..2048) {
+		my $to_get = $bytes < $left ? $bytes : $left;
+		my $cur = $obj->generate($to_get);
+		is(length($cur), $to_get, 'Proper number of bytes returned');
+		$got .= $cur;
+		$left -= $to_get;
+		last unless $left;
+	}
+	is($got, $expected, 'Cached data is handled in chunks');
+};
+
 done_testing();
 
 sub test_instantiation {

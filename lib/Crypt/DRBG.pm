@@ -159,7 +159,8 @@ sub _check_reseed {
 	my ($self) = @_;
 
 	my $reseed = 0;
-	$reseed = 1 if defined $self->{pid} && $self->{pid} != $$;
+	my $pid = $self->{pid};
+	$reseed = 1 if defined $pid && $pid != $$;
 	$reseed = 1 if $self->{reseed_counter} >= $self->{reseed_interval};
 
 	if ($reseed) {

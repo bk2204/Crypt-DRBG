@@ -129,6 +129,18 @@ subtest 'randitems' => sub {
 			desc =>'base64'
 		},
 	);
+	if ($ENV{RELEASE_TESTING}) {
+		push @tests, {
+			count => 1_000_000,
+			range => [map { sprintf '%02x', $_ } 0..65535],
+			desc =>'two-byte hex values'
+		};
+		push @tests, {
+			count => 2_000_000,
+			range => [map { sprintf '%05d', $_ } 0..99999],
+			desc =>'five-digit values'
+		};
+	}
 	foreach my $test (@tests) {
 		subtest "generate $test->{desc}" => sub {
 			my $obj = new_obj();

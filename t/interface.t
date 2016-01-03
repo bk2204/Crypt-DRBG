@@ -112,7 +112,6 @@ subtest 'Fork safety' => sub {
 };
 
 subtest 'randitems' => sub {
-	my $obj = Crypt::DRBG::HMAC->new(seed => 'my very secret seed');
 	my @tests = (
 		{
 			count => 100,
@@ -132,6 +131,7 @@ subtest 'randitems' => sub {
 	);
 	foreach my $test (@tests) {
 		subtest "generate $test->{desc}" => sub {
+			my $obj = new_obj();
 			my @entries = $obj->randitems($test->{count}, $test->{range});
 			is(scalar @entries, $test->{count}, 'correct number of items');
 			my $buckets = {};
@@ -147,7 +147,7 @@ subtest 'randitems' => sub {
 };
 
 subtest 'rand' => sub {
-	my $obj = Crypt::DRBG::HMAC->new(seed => 'my very secret seed');
+	my $obj = new_obj();
 
 	my $max = 5;
 	my $value = $obj->rand($max);
@@ -166,6 +166,7 @@ subtest 'rand' => sub {
 	);
 	foreach my $test (@tests) {
 		subtest "generate $test->{desc}" => sub {
+			$obj = new_obj();
 			my @entries = $obj->rand($test->{arg}, $test->{count});
 			is(scalar @entries, $test->{count}, 'correct number of items');
 			my $buckets = {};
@@ -182,22 +183,17 @@ subtest 'rand' => sub {
 };
 
 subtest 'Cache handling' => sub {
-	my $total_bytes = 1024 * 2.5;
-	my $seed = 'my very secret seed';
-	my $obj = Crypt::DRBG::HMAC->new(
-		seed => $seed,
-		cache => 1024
-	);
+	my $cache_size = 1024;
+	my $total_bytes = $cache_size * 2.5;
+	my %params = (cache => $cache_size);
+	my $obj = new_obj(%params);
 	my $expected = $obj->generate($total_bytes);
 
-	$obj = Crypt::DRBG::HMAC->new(
-		seed => $seed,
-		cache => 1024
-	);
+	$obj = new_obj(%params);
 
 	my $got = '';
 	my $left = $total_bytes;
-	foreach my $bytes (1..2048) {
+	foreach my $bytes (1..($cache_size * 2)) {
 		my $to_get = $bytes < $left ? $bytes : $left;
 		my $cur = $obj->generate($to_get);
 		is(length($cur), $to_get, 'Proper number of bytes returned');
@@ -209,6 +205,11 @@ subtest 'Cache handling' => sub {
 };
 
 done_testing();
+
+sub new_obj {
+	my (%params) = @_;
+	return Crypt::DRBG::HMAC->new(seed => 'my very secret seed', %params)
+}
 
 sub test_instantiation {
 	my ($params, $desc) = @_;

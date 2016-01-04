@@ -38,28 +38,6 @@ foreach my $class (@classes) {
 	};
 }
 
-# The spec for HMAC and Hash requires that the seed, nonce, and personalization
-# string just be concatenated.  This makes it convenient to test the interface
-# parameters.
-subtest 'Instantiation and generation' => sub {
-	test_instantiation({seed => 'abc', nonce => 'def'}, 'seed/nonce');
-	test_instantiation({
-			seed => sub { 'abc' },
-			nonce => sub { 'def' },
-		},
-		'seed/nonce as coderefs'
-	);
-	test_instantiation({
-			seed => sub { 'ab' },
-			nonce => sub { 'cd' },
-			personalize => sub { 'ef' },
-		},
-		'seed/nonce/personalize as coderefs'
-	);
-	test_instantiation({seed => 'abcdef'}, 'seed');
-	test_instantiation({seed => sub { 'abcdef' }}, 'seed as coderef');
-};
-
 subtest 'Fork safety' => sub {
 	my $state = 0;
 	my @tests = (

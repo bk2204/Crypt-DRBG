@@ -94,17 +94,20 @@ subtest 'randitems' => sub {
 		{
 			count => 100,
 			range => [0..9],
-			desc => 'digits'
+			desc => 'digits',
+			expected => '3778239228',
 		},
 		{
 			count => 300,
 			range => ['A'..'Z', 'a'..'z', '_'],
-			desc =>'valid identifiers'
+			desc =>'valid identifiers',
+			expected => 'rmS_WNe_Wo',
 		},
 		{
 			count => 500,
 			range => ['0'..'9', 'A'..'Z', 'a'..'z', '+', '/'],
-			desc =>'base64'
+			desc =>'base64',
+			expected => 'h5nUMDzqU0',
 		},
 	);
 	if ($ENV{RELEASE_TESTING}) {
@@ -133,6 +136,17 @@ subtest 'randitems' => sub {
 			}
 			is($total, scalar @entries, 'only expected characters exist');
 		}
+	}
+
+	foreach my $test (@tests) {
+		my $expected = $test->{expected};
+		next unless defined $expected;
+
+		subtest "expected restults $test->{desc}" => sub {
+			my $obj = new_obj();
+			my $got = join('', $obj->randitems(10, $test->{range}));
+			is($got, $expected, 'expected results for generator');
+		};
 	}
 };
 

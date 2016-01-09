@@ -146,6 +146,9 @@ subtest 'randitems' => sub {
 			my $obj = new_obj();
 			my $got = join('', $obj->randitems(10, $test->{range}));
 			is($got, $expected, 'expected results for generator');
+			$obj = new_obj();
+			$got = $obj->randbytes(10, $test->{range});
+			is($got, $expected, 'expected results for randbytes');
 		};
 	}
 };

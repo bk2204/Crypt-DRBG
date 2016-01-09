@@ -292,6 +292,44 @@ sub randitems {
 	return splice(@results, 0, $n);
 }
 
+=head2 $drbg->randbytes($n, $items)
+
+Select randomly and uniformly from the characters in arrayref $items $n times.
+Returns a byte string.
+
+This function works just like randitems, but is more efficient if generating a
+sequence of bytes as a string instead of an array.
+
+=cut
+
+sub randbytes {
+	my ($self, $n, $items) = @_;
+
+	my $len = scalar @$items;
+	my $results = '';
+
+	# Getting this computation right is important so as not to bias the
+	# data.  $len & $len - 1 is true iff $len is not a power of two.
+	my $max = 256;
+	my $filter = sub { return $_[0]; };
+	if ($len & ($len - 1)) {
+		$max = $max - ($max % $len);
+		my $esc = sprintf '\x%02x', $max + 1;
+		$filter = sub {
+			my $s = shift;
+			eval "\$s =~ tr/$esc-\\xff//d";  ## no critic(ProhibitStringyEval)
+			return $s;
+		};
+	}
+
+	while (length $results < $n) {
+		my $bytes = $filter->($self->generate($n));
+		$results .= join '', map { $items->[$_ % $len] } unpack('C*', $bytes);
+	}
+
+	return substr($results, 0, $n);
+}
+
 =head1 AUTHOR
 
 brian m. carlson, C<< <sandals at crustytoothpaste.net> >>

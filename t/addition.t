@@ -64,11 +64,11 @@ sub compare {
 # This is a known good, if slow, implementation.
 sub add {
 	my ($x, $y) = @_;
-	my $final = Math::BigInt->new->bzero;
+	my $final = Math::BigInt->bzero;
 	foreach my $val ($x, $y) {
 		$final += Math::BigInt->new("0x" . unpack("H*", $val));
 	}
-	$final &= ((Math::BigInt->new->bone << ($len * 8)) - 1);
+	$final &= ((Math::BigInt->bone << ($len * 8)) - 1);
 	my $data = substr($final->as_hex, 2);
 	$data = "0$data" if length($data) & 1;
 	$data = pack("H*", $data);

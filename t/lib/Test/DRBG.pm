@@ -84,6 +84,9 @@ sub run_test {
 	die unless $setup->{insn} eq 'setup';
 	my $desc = "SHA-$setup->{algo}, count $setup->{count}, set $setup->{set}";
 
+	# Support for SHA-512/t was introduced in 5.60.
+	return if $setup->{algo} =~ m{^512/} && $Digest::SHA::VERSION < 5.60;
+
 	subtest $desc => sub {
 		my $drbg;
 		my $data;

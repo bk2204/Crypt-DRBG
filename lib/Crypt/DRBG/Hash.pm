@@ -88,7 +88,7 @@ sub new {
 	}
 	else {
 		require Math::BigInt;
-		Math::BigInt->import(try => 'GMP');
+		eval { Math::BigInt->import(try => 'GMP') };
 
 		$self->{s_mask} =
 			(Math::BigInt->bone << ($self->{seedlen} * 8)) - 1;

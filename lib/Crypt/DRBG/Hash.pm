@@ -91,7 +91,7 @@ sub new {
 		Math::BigInt->import(try => 'GMP');
 
 		$self->{s_mask} =
-			(Math::BigInt->new->bone << ($self->{seedlen} * 8)) - 1;
+			(Math::BigInt->bone << ($self->{seedlen} * 8)) - 1;
 		$self->{s_add} = \&_add_32;
 	}
 
@@ -137,7 +137,7 @@ sub _reseed {
 sub _add_32 {
 	my ($self, @args) = @_;
 	my @items = map { Math::BigInt->new("0x" . unpack("H*", $_)) } @args;
-	my $final = Math::BigInt->new->bzero;
+	my $final = Math::BigInt->bzero;
 	foreach my $val (@items) {
 		$final += $val;
 	}

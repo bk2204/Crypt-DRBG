@@ -167,6 +167,7 @@ sub _check_reseed {
 		die "No seed source" if !$self->{seedfunc};
 		$self->_reseed($self->{seedfunc}->($self->{seedlen}));
 		$self->{pid} = $$ if $self->{fork_safe};
+		$self->{cache} = '' if defined $self->{cache};
 	}
 
 	return 1;
@@ -210,6 +211,8 @@ sub generate {
 
 	return $self->_generate($len, $seed)
 		if !defined $self->{cache} || defined $seed;
+
+	$self->_check_reseed;
 
 	my $data = '';
 	my $left = $len;

@@ -22,6 +22,34 @@ Crypt::DRBG - Base class for fast, cryptographically-secure PRNGs
 	my @randdigits = $drbg->randitems(20, [0..9]);
 	... # do something with your 20 random digits here
 
+=head1 DESCRIPTION
+
+Crypt::DRBG is a collection of fast, cryptographically-secure PRNGs
+(pseudo-random number generators).  It can be useful for a variety of
+situations:
+
+=over 4
+
+=item *
+
+Cryptographically secure random numbers are needed in production, but for
+testing reproducibility is needed
+
+=item *
+
+A large number of random values are needed, but using /dev/urandom (or the
+equivalent) frequently or persistently is unsuitable
+
+=item *
+
+Selection of random values in a range (e.g. digits, letters, identifiers) is
+required and biasing the results is unacceptable
+
+=back
+
+Crypt::DRBG::HMAC is the recommended class to use, as it's currently the
+fastest.  All algorithms are assumed to provide equivalent security.
+
 =head1 SUBROUTINES/METHODS
 
 =head2 initialize(%params)

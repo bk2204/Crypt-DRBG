@@ -216,9 +216,10 @@ sub initialize {
 		$self->{cache_size} = $params{cache};
 	}
 
-	$self->{fork_safe} = $params{fork_safe};
-	$self->{fork_safe} = 1 if $params{auto} && !defined $params{fork_safe};
-	$self->{pid} = $$ if $self->{fork_safe};
+	if ($params{fork_safe} || (!exists $params{fork_safe} && $params{auto})) {
+		$self->{fork_safe} = 1;
+		$self->{pid} = $$;
+	}
 
 	return 1;
 }

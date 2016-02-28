@@ -5,10 +5,14 @@ Crypt-DRBG
 
 Crypt-DRBG is a set of fast, cryptographically-secure PRNGs.  It can be used
 either as a supplement to the system PRNG (e.g. /dev/random or /dev/urandom) or
-where reproducible results are needed.
+where reproducible results are sometimes needed (e.g. in unit tests).
+It also provides bias-free selection of bytes or array elements.
 
 The algorithms implemented are the NIST HMAC_DRBG and Hash_DRBG.  Unit tests are
 included to ensure conformance with the specification.
+The HMAC implementation (`Crypt::DRBG::HMAC`)
+is the preferred implementation for speed reasons.
+Both algorithms are generally believed to be secure.
 
 == Installation
 

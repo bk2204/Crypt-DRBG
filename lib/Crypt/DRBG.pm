@@ -66,9 +66,9 @@ fork_safe.
 
 =item autoseed
 
-If true, derive a seed from /dev/urandom, /dev/arandom, or /dev/random, in that
-order.  Windows support is lacking, but may be added in the future; however,
-this should function on Cygwin.
+If true, derive a seed from Crypt::URandom, if available,
+or from /dev/urandom, /dev/arandom, or /dev/random, in that order.
+Windows support requires Crypt::URandom to function properly.
 
 =item seed
 
@@ -112,7 +112,15 @@ before generating more.
 sub _rand_bytes {
 	my ($len) = @_;
 
-	my $data = '';
+	my $data = eval {
+		require Crypt::URandom;
+		Crypt::URandom::urandom($len);
+	};
+
+	return $data if defined $data;
+
+	$data = '';
+
 	my @sources = qw{/dev/urandom /dev/arandom /dev/random};
 	foreach my $source (@sources) {
 		my $fh = IO::File->new($source, 'r') or next;

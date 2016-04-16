@@ -14,11 +14,11 @@ Crypt::DRBG::HMAC - Fast, cryptographically secure PRNG
 
 =head1 SYNOPSIS
 
-    use Crypt::DRBG::HMAC;
+	use Crypt::DRBG::HMAC;
 
-    my $drbg = Crypt::DRBG::HMAC->new(auto => 1);
+	my $drbg = Crypt::DRBG::HMAC->new(auto => 1);
 	my $data = $drbg->generate(42);
-    ... # do something with your 42 bytes here
+	... # do something with your 42 bytes here
 
 	my $drbg2 = Crypt::DRBG::HMAC->new(seed => "my very secret seed");
 	my $data2 = $drbg->generate(42);
@@ -167,7 +167,7 @@ automatically be notified of progress on your bug as I make changes.
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Crypt::DRBG::HMAC
+	perldoc Crypt::DRBG::HMAC
 
 
 You can also look for information at:

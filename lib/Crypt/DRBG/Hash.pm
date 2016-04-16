@@ -14,11 +14,11 @@ Crypt::DRBG::Hash - Fast, cryptographically secure PRNG
 
 =head1 SYNOPSIS
 
-    use Crypt::DRBG::Hash;
+	use Crypt::DRBG::Hash;
 
-    my $drbg = Crypt::DRBG::Hash->new(auto => 1);
+	my $drbg = Crypt::DRBG::Hash->new(auto => 1);
 	my $data = $drbg->generate(42);
-    ... # do something with your 42 bytes here
+	... # do something with your 42 bytes here
 
 	my $drbg2 = Crypt::DRBG::Hash->new(seed => "my very secret seed");
 	my $data2 = $drbg->generate(42);
@@ -231,7 +231,7 @@ automatically be notified of progress on your bug as I make changes.
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Crypt::DRBG::Hash
+	perldoc Crypt::DRBG::Hash
 
 
 You can also look for information at:

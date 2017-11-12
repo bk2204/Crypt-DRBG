@@ -166,12 +166,10 @@ sub _add_64 {
 		foreach my $val (@vals) {
 			$total += $val->[$i];
 		}
-		if ($total > 0xffffffff) {
-			$result[$i+1] += $total >> 32;
-		}
+		$result[$i+1] += $total >> 32;
 		$result[$i] = $total;
 	}
-	return substr(reverse(pack("V*", @result)), 1);
+	return substr(reverse(pack("V*", @result[0..($nu32s-1)])), 1);
 }
 
 sub _hashgen {

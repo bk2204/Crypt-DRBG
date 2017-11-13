@@ -1,5 +1,9 @@
 Revision history for Crypt-DRBG
 
+0.000003 2017-11-13
+         * Make Crypt::DRBG::Hash constant time.
+         * Mark GitHub as the source for issues.
+
 0.000002 2016-02-03
          * Don't call new on Math::BigInt unnecessarily.
          * Fix test failure on old Digest::SHA.

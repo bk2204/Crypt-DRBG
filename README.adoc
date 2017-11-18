@@ -36,6 +36,23 @@ To install this module, run the following commands:
 	make test
 	make install
 
+== Basic Usage
+
+[source,perl]
+----
+use Crypt::DRBG::HMAC;
+
+# Non-deterministic, automatically seeded option.
+my $drbg = Crypt::DRBG::HMAC->new(auto => 1);
+my $data = $drbg->generate(42);
+... # do something with your 42 bytes here
+
+# Deterministic option
+my $drbg2 = Crypt::DRBG::HMAC->new(seed => "my very secret seed");
+my @randdigits = $drbg->randitems(20, [0..9]);
+... # do something with your 20 random digits here
+----
+
 == License and Copyright
 
 Copyright (C) 2015 brian m. carlson

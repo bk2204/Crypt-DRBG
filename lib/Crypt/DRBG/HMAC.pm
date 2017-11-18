@@ -59,6 +59,24 @@ If Perl (and hence Digest::SHA) was built with a compiler lacking 64-bit integer
 support, use "256" here.  "256" may also provide better performance for 32-bit
 machines.
 
+=item func
+
+If you would like to use a different hash function, you can specify a function
+implemeting HMAC for your specific algorithm.  The function should take two
+arguments, the value and the key, in that order.
+
+For example, if you had C<Digest::BLAKE2> and C<Digest::HMAC> installed, you
+could do the following to use BLAKE2b:
+
+	my $func = sub {
+		return Digest::HMAC::hmac(@_, \&Digest::BLAKEx::blake2b, 128);
+	};
+	my $drbg = Crypt::DRBG::HMAC->new(auto => 1, func => $func;
+	my $data = $drbg->generate(42);
+
+Note that the algo parameter is still required, explicitly or implicitly, in
+order to know how large a seed to use.
+
 =back
 
 =cut
@@ -71,7 +89,7 @@ sub new {
 
 	my $algo = $self->{algo} = $params{algo} || '512';
 	$algo =~ tr{/}{}d;
-	$self->{s_func} = Digest::SHA->can("hmac_sha$algo") or
+	$self->{s_func} = ($params{func} || Digest::SHA->can("hmac_sha$algo")) or
 		die "Unsupported algorithm '$algo'";
 	$self->{seedlen} = $algo =~ /^(384|512)$/ ? 111 : 55;
 	$self->{reseed_interval} = 4294967295; # (2^32)-1

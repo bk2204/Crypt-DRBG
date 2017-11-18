@@ -59,6 +59,26 @@ If Perl (and hence Digest::SHA) was built with a compiler lacking 64-bit integer
 support, use "256" here.  "256" may also provide better performance for 32-bit
 machines.
 
+=item func
+
+If you would like to use a different hash function, you can specify a function
+implemeting your specific algorithm.
+
+For example, if you had C<Digest::BLAKE2> installed, you could do the following
+to use BLAKE2b:
+
+	my $drbg = Crypt::DRBG::Hash->new(
+		auto => 1,
+		func => \&Digest::BLAKE2::blake2b,
+		algo => 512
+	);
+	my $data = $drbg->generate(42);
+
+Note that the algo parameter is still required, in order to know how large a
+seed to use.
+
+=back
+
 =back
 
 =cut
@@ -71,7 +91,7 @@ sub new {
 
 	my $algo = $self->{algo} = $params{algo} || '512';
 	$algo =~ tr{/}{}d;
-	$self->{s_func} = Digest::SHA->can("sha$algo") or
+	$self->{s_func} = ($params{func} || Digest::SHA->can("sha$algo")) or
 		die "Unsupported algorithm '$algo'";
 	$self->{seedlen} = $algo =~ /^(384|512)$/ ? 111 : 55;
 	$self->{reseed_interval} = 4294967295; # (2^32)-1

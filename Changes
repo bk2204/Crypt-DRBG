@@ -1,8 +1,9 @@
 Revision history for Crypt-DRBG
 
-0.000003 2017-11-13
+0.001000 2017-11-20
          * Make Crypt::DRBG::Hash constant time.
          * Mark GitHub as the source for issues.
+         * Add support for custom hash functions.
 
 0.000002 2016-02-03
          * Don't call new on Math::BigInt unnecessarily.
